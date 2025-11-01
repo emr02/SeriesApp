@@ -1,0 +1,19 @@
+﻿<Page
+    x:Class="SeriesApp.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <!--<Grid x:Name="ContentArea">
+        
+    </Grid>-->
+
+    <RelativePanel>
+        <Image x:Name="logo" Source="https://www.medianet-bb.de/wp-content/uploads/2020/02/betaseries_logo.png"
+RelativePanel.AlignHorizontalCenterWithPanel="True" RelativePanel.AlignVerticalCenterWithPanel="True"/>
+        <TextBlock x:Name="NomAppli" Text="My Betaseries App" RelativePanel.Above="logo"
+RelativePanel.AlignHorizontalCenterWithPanel="True" FontWeight="Bold" FontSize="24" Foreground="LightBlue"/>
+    </RelativePanel>
+</Page>
