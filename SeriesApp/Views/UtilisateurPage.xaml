@@ -26,55 +26,53 @@
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
                     <TextBlock VerticalAlignment="Center" Text="Mail" Margin="0,0,8,0"/>
                     <TextBox Width="360"
-                             Text="{Binding SearchEmail, Mode=TwoWay}"
+                             Text="{Binding SearchEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              PlaceholderText="ex: nom@exemple.com" />
                     <Button Content="Rechercher" Command="{Binding SearchCommand}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Width="520" Spacing="8">
                     <TextBlock Text="Nom" />
-                    <TextBox Text="{Binding Current.Nom, Mode=TwoWay}" />
+                    <TextBox Text="{Binding Current.Nom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBlock Text="Prénom" />
-                    <TextBox Text="{Binding Current.Prenom, Mode=TwoWay}" />
+                    <TextBox Text="{Binding Current.Prenom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBlock Text="Mobile" />
-                    <TextBox Text="{Binding Current.Mobile, Mode=TwoWay}" />
+                    <TextBox Text="{Binding Current.Mobile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBlock Text="Mail" />
-                    <TextBox Text="{Binding Current.Mail, Mode=TwoWay}" />
+                    <TextBox Text="{Binding Current.Mail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
+                    <!-- Password -->
                     <TextBlock Text="Password" />
-                    <!-- PasswordBox.Password n'est pas un DP bindable : on utilise l'événement PasswordChanged -->
-                    <PasswordBox x:Name="PasswordBox"
-                                 PasswordChar="●"
-                                 PasswordChanged="PasswordBox_PasswordChanged" />
+                    <PasswordBox x:Name="PasswordBox" PasswordChanged="PasswordBox_PasswordChanged" />
 
-                    <TextBlock Text="Adresse (Rue, CP, Ville, Pays)" />
-                    <TextBox Text="{Binding Current.Adresse, Mode=TwoWay}" AcceptsReturn="True" Height="80" TextWrapping="Wrap"/>
+                    <!-- Adresse découpée -->
+                    <TextBlock Text="Rue" />
+                    <TextBox Text="{Binding Current.Rue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Code Postal" />
+                    <TextBox Text="{Binding Current.CodePostal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Ville" />
+                    <TextBox Text="{Binding Current.Ville, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Text="Pays" />
+                    <TextBox Text="{Binding Current.Pays, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
 
                 <!-- CommandBar demandée dans l'énoncé -->
-                <CommandBar Grid.Row="3" x:Name="AppCommandBar"
-                            HorizontalAlignment="Center"
-                            Margin="0,24,0,12">
+                <CommandBar Grid.Row="3" x:Name="AppCommandBar" HorizontalAlignment="Center" Margin="0,24,0,12">
                     <CommandBar.PrimaryCommands>
-                        <AppBarButton Name="Save"
-                                      Icon="Save"
-                                      Label="Save Change"
-                                      Command="{Binding BtnModifyUtilisateurCommand}" />
-                        <AppBarButton Name="Clear"
-                                      Icon="ClearSelection"
-                                      Label="Clear"
-                                      Command="{Binding BtnClearUtilisateurCommand}" />
-                        <AppBarButton Name="Add"
-                                      Icon="Add"
-                                      Label="Add"
-                                      Command="{Binding BtnAddUtilisateurCommand}" />
-                        <AppBarButton Name="Delete"
-                                      Icon="Delete"
-                                      Label="Delete"
-                                      Command="{Binding BtnDeleteUtilisateurCommand}" />
+                        <AppBarButton Name="Save" Icon="Save" Label="Save Change"
+                              Command="{Binding BtnModifyUtilisateurCommand}" />
+                        <AppBarButton Name="Clear" Icon="ClearSelection" Label="Clear"
+                              Command="{Binding BtnClearUtilisateurCommand}" />
+                        <AppBarButton Name="Add" Icon="Add" Label="Add"
+                              Command="{Binding BtnAddUtilisateurCommand}" />
+                        <AppBarButton Name="Delete" Icon="Delete" Label="Delete"
+                              Command="{Binding BtnDeleteUtilisateurCommand}" />
                     </CommandBar.PrimaryCommands>
                 </CommandBar>
             </Grid>

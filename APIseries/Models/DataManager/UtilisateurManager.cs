@@ -70,6 +70,12 @@ namespace APIseries.Models.DataManager
 
         public async Task UpdateAsync(Utilisateur entity)
         {
+            // Détacher toute instance déjà trackée avec la même clé pour éviter conflit
+            var tracked = filmsDbContext.ChangeTracker.Entries<Utilisateur>()
+                .FirstOrDefault(e => e.Entity.UtilisateurId == entity.UtilisateurId);
+            if (tracked != null)
+                tracked.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
             filmsDbContext.Utilisateurs.Update(entity);
             await filmsDbContext.SaveChangesAsync();
         }

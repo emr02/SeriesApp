@@ -1,6 +1,6 @@
-﻿// Remplace ou mets à jour ce fichier. J'ajoute GetByEmailAsync public.
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -11,12 +11,16 @@ namespace SeriesApp.Services;
 public class WSServiceUtilisateur : IService<Utilisateur>
 {
     private readonly HttpClient httpClient;
-    private readonly string _controller = "utilisateurs";
+    private const string Controller = "Utilisateurs"; // <-- nom du controller de l'API
 
     public WSServiceUtilisateur()
     {
-        httpClient = new HttpClient();
-        // utilise ton API swagger (https) : modifie si nécessaire ou lis depuis Resources.resw
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) => true
+        };
+
+        httpClient = new HttpClient(handler);
         httpClient.BaseAddress = new Uri("https://localhost:7271/api/");
         httpClient.DefaultRequestHeaders.Accept.Clear();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -24,7 +28,7 @@ public class WSServiceUtilisateur : IService<Utilisateur>
 
     public async Task<List<Utilisateur>?> GetAllAsync(string? nomControleur)
     {
-        try { return await httpClient.GetFromJsonAsync<List<Utilisateur>>(nomControleur ?? _controller); }
+        try { return await httpClient.GetFromJsonAsync<List<Utilisateur>>(nomControleur ?? Controller); }
         catch { return null; }
     }
 
@@ -42,13 +46,12 @@ public class WSServiceUtilisateur : IService<Utilisateur>
         catch { return null; }
     }
 
-    // --- méthode ajoutée demandée : GET /utilisateurs/getbyemail/{email}
     public async Task<Utilisateur?> GetByEmailAsync(string? nomControleur, string? email)
     {
-        if (string.IsNullOrEmpty(nomControleur) || string.IsNullOrEmpty(email)) return null;
+        if (string.IsNullOrEmpty(email)) return null;
         try
         {
-            var path = string.Concat(nomControleur.TrimEnd('/'), "/getbyemail/", Uri.EscapeDataString(email));
+            var path = string.Concat(Controller, "/GetUtilisateurByEmail/", Uri.EscapeDataString(email));
             return await httpClient.GetFromJsonAsync<Utilisateur>(path);
         }
         catch
@@ -57,36 +60,77 @@ public class WSServiceUtilisateur : IService<Utilisateur>
         }
     }
 
-    public async Task<bool> PostAsync(string? nomControleur, Utilisateur? entity)
+    public async Task<bool> DeleteAsync(string? nomControleur, Utilisateur? utilisateur)
     {
-        if (string.IsNullOrEmpty(nomControleur) || entity == null) return false;
+        if (utilisateur == null) return false;
+        var id = utilisateur.UtilisateurId != 0 ? utilisateur.UtilisateurId : utilisateur.Id;
+        if (id == 0) return false;
+
         try
         {
-            var response = await httpClient.PostAsJsonAsync(nomControleur, entity);
+            var response = await httpClient.DeleteAsync($"{Controller}/{id}");
             return response.IsSuccessStatusCode;
         }
-        catch { return false; }
+        catch
+        {
+            return false;
+        }
+    }
+
+    // --- Debug / Diagnostic versions that return the response body ---
+    // Useful to show server validation errors (ModelState) to the client.
+
+    // POST: api/Utilisateurs/PostUtilisateur
+    public async Task<(bool Success, string ResponseContent)> PostAsyncWithResponse(string? nomControleur, Utilisateur? entity)
+    {
+        if (entity == null) return (false, "Entity is null");
+        try
+        {
+            var path = string.Concat(Controller, "/PostUtilisateur");
+            var response = await httpClient.PostAsJsonAsync(path, entity);
+            var content = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine($"POST {path} -> {response.StatusCode} : {content}");
+            return (response.IsSuccessStatusCode, content);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"POST exception: {ex}");
+            return (false, ex.Message);
+        }
+    }
+
+    // PUT: api/Utilisateurs/PutUtilisateur/{id}
+    public async Task<(bool Success, string ResponseContent)> PutAsyncWithResponse(string? nomControleur, Utilisateur? entity)
+    {
+        if (entity == null) return (false, "Entity is null");
+        var id = entity.UtilisateurId != 0 ? entity.UtilisateurId : entity.Id;
+        if (id == 0) return (false, "Id is 0 or missing");
+
+        try
+        {
+            var path = string.Concat(Controller, "/PutUtilisateur/", id);
+            var response = await httpClient.PutAsJsonAsync(path, entity);
+            var content = await response.Content.ReadAsStringAsync();
+            Debug.WriteLine($"PUT {path} -> {response.StatusCode} : {content}");
+            return (response.IsSuccessStatusCode, content);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"PUT exception: {ex}");
+            return (false, ex.Message);
+        }
+    }
+
+    // Implement interface methods as simple wrappers (keeps compatibility)
+    public async Task<bool> PostAsync(string? nomControleur, Utilisateur? entity)
+    {
+        var (ok, _) = await PostAsyncWithResponse(nomControleur, entity);
+        return ok;
     }
 
     public async Task<bool> PutAsync(string? nomControleur, Utilisateur? entity)
     {
-        if (string.IsNullOrEmpty(nomControleur) || entity == null) return false;
-        try
-        {
-            var response = await httpClient.PutAsJsonAsync(nomControleur, entity);
-            return response.IsSuccessStatusCode;
-        }
-        catch { return false; }
-    }
-
-    public async Task<bool> DeleteAsync(string? nomControleur, Utilisateur? utilisateur)
-    {
-        if (string.IsNullOrEmpty(nomControleur) || utilisateur == null || utilisateur.Id == 0) return false;
-        try
-        {
-            var response = await httpClient.DeleteAsync($"{nomControleur}/{utilisateur.Id}");
-            return response.IsSuccessStatusCode;
-        }
-        catch { return false; }
+        var (ok, _) = await PutAsyncWithResponse(nomControleur, entity);
+        return ok;
     }
 }
