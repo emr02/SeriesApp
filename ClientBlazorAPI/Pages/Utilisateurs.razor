@@ -1,0 +1,55 @@
+﻿@page "/utilisateurs"
+@using ClientBlazorAPI.Models
+@inject WSServiceUtilisateur utilisateurService
+@inject NavigationManager NavManager
+
+<h1>Visualisation des utilisateurs</h1>
+
+<button class="btn btn-success mb-3" @onclick="AjouterUtilisateur">
+    Ajouter un utilisateur
+</button>
+
+@if (utilisateurs == null)
+{
+    <p>Chargement...</p>
+}
+else if (utilisateurs.Count == 0)
+{
+    <p>Aucun utilisateur trouvé.</p>
+}
+else
+{
+    <table class="table table-striped" style="width:80%;margin:auto;">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Mail</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in utilisateurs)
+            {
+                <tr>
+                    <td>@u.Nom</td>
+                    <td>@u.Prenom</td>
+                    <td>@u.Mail</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<Utilisateur>? utilisateurs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        utilisateurs = await utilisateurService.GetAllAsync("Utilisateurs");
+    }
+
+    private void AjouterUtilisateur()
+    {
+        NavManager.NavigateTo("/create-utilisateur");
+    }
+}

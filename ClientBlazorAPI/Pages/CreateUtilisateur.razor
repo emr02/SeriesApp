@@ -1,0 +1,77 @@
+﻿@page "/create-utilisateur"
+@using ClientBlazorAPI.Models
+@inject WSServiceUtilisateur utilisateurService
+@inject NavigationManager NavManager
+
+<h3>Créer un utilisateur</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<EditForm Model="utilisateur" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="nom">Nom :</label>
+        <InputText id="nom" class="form-control" @bind-Value="utilisateur.Nom" placeholder="Nom" />
+    </div>
+    <div class="mb-3">
+        <label for="prenom">Prénom :</label>
+        <InputText id="prenom" class="form-control" @bind-Value="utilisateur.Prenom" placeholder="Prénom" />
+    </div>
+    <div class="mb-3">
+        <label for="mobile">Mobile :</label>
+        <InputText id="mobile" class="form-control" @bind-Value="utilisateur.Mobile" placeholder="Mobile" />
+    </div>
+    <div class="mb-3">
+        <label for="mail">Mail :</label>
+        <InputText id="mail" class="form-control" @bind-Value="utilisateur.Mail" placeholder="Mail" />
+    </div>
+    <div class="mb-3">
+        <label for="pwd">Password :</label>
+        <InputText id="pwd" class="form-control" @bind-Value="utilisateur.Pwd" type="password" placeholder="Password" />
+    </div>
+    <div class="mb-3">
+        <label for="rue">Rue :</label>
+        <InputText id="rue" class="form-control" @bind-Value="utilisateur.Rue" placeholder="Rue" />
+    </div>
+    <div class="mb-3">
+        <label for="codepostal">CP :</label>
+        <InputText id="codepostal" class="form-control" @bind-Value="utilisateur.CodePostal" placeholder="Code Postal" />
+    </div>
+    <div class="mb-3">
+        <label for="ville">Ville :</label>
+        <InputText id="ville" class="form-control" @bind-Value="utilisateur.Ville" placeholder="Ville" />
+    </div>
+    <div class="mb-3">
+        <label for="pays">Pays :</label>
+        <InputText id="pays" class="form-control" @bind-Value="utilisateur.Pays" placeholder="Pays" />
+    </div>
+    <button type="submit" class="btn btn-primary">Créer</button>
+    <button type="button" class="btn btn-secondary ms-2" @onclick="RetourListe">
+        Annuler
+    </button>
+</EditForm>
+
+@code {
+    Utilisateur utilisateur = new();
+    string errorMessage = "";
+
+    private async Task HandleValidSubmit()
+    {
+        var ok = await utilisateurService.CreateAsync("Utilisateurs/PostUtilisateur", utilisateur);
+        if (ok)
+        {
+            NavManager.NavigateTo("/utilisateurs");
+        }
+        else
+        {
+            errorMessage = "Erreur lors de la création ! (Vérifie le format et les champs).";
+        }
+    }
+
+    private void RetourListe() => NavManager.NavigateTo("/utilisateurs");
+}

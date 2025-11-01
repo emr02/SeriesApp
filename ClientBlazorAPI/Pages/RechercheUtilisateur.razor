@@ -1,0 +1,146 @@
+﻿@page "/recherche-utilisateur"
+@using ClientBlazorAPI.Models
+@inject WSServiceUtilisateur utilisateurService
+
+<h3>Rechercher un utilisateur</h3>
+
+<div class="mb-3">
+    <label for="searchMail">Email à rechercher :</label>
+    <InputText id="searchMail" class="form-control" @bind-Value="searchMail" />
+    <button class="btn btn-primary mt-2" @onclick="RechercherUtilisateur">Rechercher</button>
+</div>
+
+@if (!string.IsNullOrEmpty(notification))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @notification
+        <button type="button" class="btn-close" @onclick="() => notification = null"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (utilisateur != null)
+{
+    <EditForm Model="utilisateur" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="validation-summary-errors" />
+
+        <div class="mb-3">
+            <label for="nom">Nom :</label>
+            <InputText id="nom" class="form-control" @bind-Value="utilisateur.Nom" />
+            <ValidationMessage For="@(() => utilisateur.Nom)" />
+        </div>
+        <div class="mb-3">
+            <label for="prenom">Prénom :</label>
+            <InputText id="prenom" class="form-control" @bind-Value="utilisateur.Prenom" />
+            <ValidationMessage For="@(() => utilisateur.Prenom)" />
+        </div>
+        <div class="mb-3">
+            <label for="mobile">Mobile :</label>
+            <InputText id="mobile" class="form-control" @bind-Value="utilisateur.Mobile" />
+            <ValidationMessage For="@(() => utilisateur.Mobile)" />
+        </div>
+        <div class="mb-3">
+            <label for="mail">Mail :</label>
+            <InputText id="mail" class="form-control" @bind-Value="utilisateur.Mail" />
+            <ValidationMessage For="@(() => utilisateur.Mail)" />
+        </div>
+        <div class="mb-3">
+            <label for="pwd">Password :</label>
+            <InputText id="pwd" class="form-control" @bind-Value="utilisateur.Pwd" type="password" />
+            <ValidationMessage For="@(() => utilisateur.Pwd)" />
+        </div>
+        <div class="mb-3">
+            <label for="rue">Rue :</label>
+            <InputText id="rue" class="form-control" @bind-Value="utilisateur.Rue" />
+            <ValidationMessage For="@(() => utilisateur.Rue)" />
+        </div>
+        <div class="mb-3">
+            <label for="codepostal">CP :</label>
+            <InputText id="codepostal" class="form-control" @bind-Value="utilisateur.CodePostal" />
+            <ValidationMessage For="@(() => utilisateur.CodePostal)" />
+        </div>
+        <div class="mb-3">
+            <label for="ville">Ville :</label>
+            <InputText id="ville" class="form-control" @bind-Value="utilisateur.Ville" />
+            <ValidationMessage For="@(() => utilisateur.Ville)" />
+        </div>
+        <div class="mb-3">
+            <label for="pays">Pays :</label>
+            <InputText id="pays" class="form-control" @bind-Value="utilisateur.Pays" />
+            <ValidationMessage For="@(() => utilisateur.Pays)" />
+        </div>
+        <button type="submit" class="btn btn-primary">Modifier</button>
+    </EditForm>
+}
+
+@code {
+    string searchMail = "";
+    Utilisateur utilisateur;
+    string errorMessage = "";
+    string notification = "";
+
+    private async Task RechercherUtilisateur()
+    {
+        errorMessage = "";
+        notification = "";
+        utilisateur = null;
+
+        if (string.IsNullOrWhiteSpace(searchMail))
+        {
+            errorMessage = "Veuillez saisir un email pour la recherche.";
+            return;
+        }
+
+        try
+        {
+            utilisateur = await utilisateurService.GetByEmailAsync(searchMail);
+
+            if (utilisateur == null)
+            {
+                errorMessage = "Aucun utilisateur trouvé avec cet email.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            // Gestion du code HTTP dans le message d'erreur
+            if (ex.Message.Contains("404"))
+            {
+                errorMessage = "Aucun utilisateur trouvé avec cet email.";
+            }
+            else
+            {
+                errorMessage = "Erreur lors de la recherche : " + ex.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Erreur lors de la recherche : " + ex.Message;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        errorMessage = "";
+        try
+        {
+            var ok = await utilisateurService.UpdateAsync(utilisateur.Id, utilisateur);
+            if (ok)
+            {
+                notification = $"L'utilisateur a été modifié";
+            }
+            else
+            {
+                errorMessage = "Erreur lors de la modification.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Erreur lors de la modification : " + ex.Message;
+        }
+    }
+}
