@@ -2,6 +2,9 @@
 
 SeriesApp is a C# web application (with HTML/CSS front-end files) for managing and browsing TV/series information. This README provides an overview, development setup, and contribution guidelines. Update the sections below to match your project's specific architecture, configuration, and requirements.
 
+<img width="800" height="491" alt="image" src="https://github.com/user-attachments/assets/fa947c50-cc1f-4d4d-80f3-e794cad4b4d2" />
+
+
 ## Features
 
 - View and manage a list of series
